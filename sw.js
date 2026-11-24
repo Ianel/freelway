@@ -1,5 +1,5 @@
-const CACHE_NAME = 'freelance-route-v6';
-const ASSETS = ['./', './index.html', './style.css', './manifest.json', './assets/parcours.jpeg', './assets/pixel.ttf',
+const CACHE_NAME = 'freelance-route-v7';
+const ASSETS = ['./', './index.html', './style.css', './manifest.json', './assets/parcours.jpeg', './assets/pixel.ttf', './assets/favicon.svg',
     ...['config', 'utils', 'data', 'storage', 'audio', 'characters', 'world', 'player', 'controls', 'ui', 'progression', 'interactions', 'challenges', 'main'].map(name => `./js/${name}.js`)];
 self.addEventListener('install', event => {
     event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
