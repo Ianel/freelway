@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#5e3a17">
+<title>La route du freelance</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230066cc'/><circle cx='50' cy='50' r='30' fill='white'/><text x='50' y='55' font-family='Arial' font-size='24' fill='black' text-anchor='middle'>F</text></svg>">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ LOADING ============ -->
+  <div id="loader" class="screen active">
+    <div class="loader-box">
+      <div class="loader-title">La route du freelance</div>
+      <div class="loader-bar"><div id="loader-fill"></div></div>
+      <div class="loader-text">Chargement du monde…</div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN MENU ============ -->
+  <div id="menu" class="screen hidden">
+    <div class="menu-panel">
+      <p class="menu-kicker">Une aventure vers ton premier client</p>
+      <h1 class="game-title">La route du freelance</h1>
+      <p class="menu-sub">Suis ce parcours et décroche ton 1<sup>er</sup> client en 1 mois</p>
+
+      <div class="menu-buttons">
+        <button class="btn btn-primary" id="btn-new">▶ Nouvelle partie</button>
+        <button class="btn" id="btn-continue">Continuer</button>
+        <button class="btn" id="btn-howto">Comment jouer</button>
+        <button class="btn btn-ghost" id="btn-reset">Réinitialiser la progression</button>
+      </div>
+
+      <p class="menu-help">Flèches / ZQSD · explorer<br>E / Espace · parler aux mentors</p>
+      <div class="menu-save hidden" id="menu-save"></div>
+      <div class="menu-foot">
+        <button class="chip" id="btn-sound" aria-pressed="true">🔊 Son</button>
+        <span class="chip static" id="offline-badge" hidden>⚡ Hors ligne</span>
+      </div>
+    </div>
+    <button class="btn btn-ghost menu-map-link" id="btn-map">Voir la carte</button>
+  </div>
+
+  <!-- ============ NAME ENTRY ============ -->
+  <div id="namebox" class="screen hidden">
+    <div class="modal">
+      <h2>Quel est ton prénom ?</h2>
+      <p class="muted">Il apparaîtra sur ton parcours.</p>
+      <input id="name-input" class="text-input" maxlength="16" placeholder="Ton prénom" autocomplete="off">
+      <div class="row-end">
+        <button class="btn btn-ghost" id="name-cancel">Annuler</button>
+        <button class="btn btn-primary" id="name-ok">C'est parti !</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HOW TO PLAY ============ -->
+  <div id="howto" class="screen hidden">
+    <div class="modal modal-wide">
+      <h2>Comment jouer</h2>
+      <div class="howto-grid">
+        <div class="howto-item"><b>Se déplacer</b><span>Flèches, Z Q S D ou W A S D · sur mobile, joystick à gauche</span></div>
+        <div class="howto-item"><b>Interagir</b><span>Touche E ou Espace · bouton ◉ sur mobile</span></div>
+        <div class="howto-item"><b>Fermer une fenêtre</b><span>Touche Échap</span></div>
+        <div class="howto-item"><b>Progression</b><span>Termine une étape pour débloquer la suivante. Le chemin indique où aller.</span></div>
+        <div class="howto-item"><b>Objectif</b><span>15 étapes pour décrocher ton premier client.</span></div>
+        <div class="howto-item"><b>Astuce</b><span>En cas d'échec, recommence : tu ne perds rien.</span></div>
+      </div>
+      <div class="row-end">
+        <button class="btn btn-primary" id="howto-close">Compris !</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <div id="play" class="screen hidden">
+    <canvas id="cv"></canvas>
+
+    <!-- HUD -->
+    <header id="hud">
+      <div class="hud-left">
+        <div class="hud-name" id="hud-name">Freelance</div>
+        <div class="hud-step" id="hud-step">Étape 1/15</div>
+      </div>
+      <div class="hud-mid">
+        <div class="hud-bar"><div id="hud-fill"></div></div>
+        <div class="hud-goal" id="hud-goal">Objectif : Dactylographie</div>
+      </div>
+      <div class="hud-right">
+        <button class="icon-btn" id="btn-pause" aria-label="Pause">☰</button>
+      </div>
+    </header>
+
+    <!-- Interaction hint -->
+    <div id="hint" class="hidden"><span class="hint-key">E</span> Parler</div>
+
+    <!-- Touch controls -->
+    <div id="touch-ui" class="hidden">
+      <div id="stick"><div id="stick-knob"></div></div>
+      <button id="btn-action" aria-label="Interagir">E</button>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden"></div>
+
+    <!-- Dialog -->
+    <div id="dialog" class="hidden">
+      <div class="dialog-box">
+        <div class="dialog-head">
+          <canvas id="dialog-avatar" width="64" height="64"></canvas>
+          <div>
+            <div class="dialog-name" id="dialog-name">Hery</div>
+            <div class="dialog-role" id="dialog-role"></div>
+          </div>
+        </div>
+        <p class="dialog-text" id="dialog-text"></p>
+        <div class="dialog-actions" id="dialog-actions"></div>
+      </div>
+    </div>
+
+    <!-- Challenge -->
+    <div id="challenge" class="hidden">
+      <div class="challenge-box">
+        <div class="challenge-header">
+          <div>
+            <div class="challenge-step" id="challenge-step">Étape 1</div>
+            <h3 class="challenge-title" id="challenge-title">Dactylographie</h3>
+          </div>
+          <button class="icon-btn" id="challenge-quit" aria-label="Quitter">✕</button>
+        </div>
+        <div class="challenge-body" id="challenge-body"></div>
+        <div class="challenge-foot">
+          <div class="challenge-msg" id="challenge-msg"></div>
+          <button class="btn btn-primary" id="challenge-submit">Valider</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause -->
+    <div id="pause" class="hidden">
+      <div class="modal">
+        <h2>Pause</h2>
+        <div class="menu-buttons">
+          <button class="btn btn-primary" id="pause-resume">Reprendre</button>
+          <button class="btn" id="pause-progress">Progression</button>
+          <button class="btn" id="pause-map">Carte du parcours</button>
+          <button class="btn" id="pause-howto">Commandes</button>
+          <button class="btn btn-ghost" id="pause-menu">Retour au menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress panel -->
+    <div id="progressPanel" class="hidden">
+      <div class="modal modal-wide">
+        <h2>Ma progression</h2>
+        <div id="progress-list"></div>
+        <div class="row-end">
+          <button class="btn btn-primary" id="progress-close">Fermer</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ END SCREEN ============ -->
+  <div id="end" class="screen hidden">
+    <canvas id="confetti"></canvas>
+    <div class="end-panel">
+      <div class="end-star">★</div>
+      <h1 class="end-title">MISSION<br>ACCOMPLIE !</h1>
+      <p class="end-text">
+        Tu as parcouru tout le chemin, développé tes compétences et décroché ton premier client.
+        Le début d'une nouvelle aventure commence maintenant !
+      </p>
+      <div id="end-stats" class="end-stats"></div>
+      <button class="btn btn-primary btn-xl" id="btn-go">ALLONS-Y</button>
+      <button class="btn btn-ghost" id="btn-end-menu">Retour au menu</button>
+    </div>
+  </div>
+
+  <!-- ============ CONFIRM ============ -->
+  <div id="confirm" class="screen hidden">
+    <div class="modal">
+      <h2 id="confirm-title">Confirmer</h2>
+      <p id="confirm-text" class="muted"></p>
+      <div class="row-end">
+        <button class="btn btn-ghost" id="confirm-no">Annuler</button>
+        <button class="btn btn-danger" id="confirm-yes">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="route-map" class="hidden" role="dialog" aria-label="Carte du parcours" aria-modal="true">
+    <img src="assets/parcours.jpeg" alt="Carte illustrée des 15 étapes de la route du freelance, de la dactylographie au premier client.">
+    <button id="map-close" class="btn">Retour au jeu</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/world.js"></script>
+<script src="js/player.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/progression.js"></script>
+<script src="js/interactions.js"></script>
+<script src="js/challenges.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

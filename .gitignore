@@ -1,0 +1,14 @@
+# Local assistant settings
+.claude/
+
+# Dependencies and generated test output
+node_modules/
+test-results/
+playwright-report/
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
